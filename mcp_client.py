@@ -18,10 +18,10 @@ os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 # Support both environment-variable names.
-AVIATION_STACK_API_KEY = {
+AVIATION_STACK_API_KEY = (
     os.getenv("AVIATIONSTACK_API_KEY")
     or os.getenv("AVIATION_STACK_API_KEY")
-    }
+)
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 WEATHER_SERVER_PATH = BASE_DIR / "custom_weather_mcp_server.py"
@@ -37,7 +37,7 @@ def _require_env(name: str, value: str | None) -> str:
 
     if not value:
         raise RuntimeError(
-            f"{name} is missing."
+            f"{name} is missing. "
             f"Add {name}=your_key to the project .env file."
         )
     return value
@@ -48,7 +48,7 @@ def _subprocess_env(**updates: str | None) -> dict[str, str]:
     """
     env = os.environ.copy()
 
-    for key, value in updates.item():
+    for key, value in updates.items():
         if value:
             env[key] = value
     return env
@@ -111,7 +111,7 @@ async def _get_server_tool(
         if shutil.which("uvx") is None:
             raise RuntimeError(
                 "uvx was not found. Install uv, reopen the terminal, "
-                "activate the travel jenvironment, and run "
+                "activate the travel environment, and run "
                 "*uvx -- version'."
             )
 
@@ -131,7 +131,7 @@ async def _get_server_tool(
     tools = await client.get_tools(
         server_name=server_name,
     )
-    t
+    
     tool = next(
         (
             item
@@ -150,7 +150,7 @@ async def _get_server_tool(
         )
 
         raise RuntimeError(
-            f"MCP tool '{tool_name}' was not found"
+            f"MCP tool '{tool_name}' was not found "
             f"on server '{server_name}'. "
             f"Available tools: {available_tools}"
         )
@@ -234,7 +234,7 @@ async def weather_mcp_search(city: str):
 
 async def forecast_mcp_search(city: str):
     forecast_tool = await _get_server_tool(
-        "weatehr",
+        "weather",
         "get_forecast"
     )
 
@@ -246,7 +246,7 @@ async def forecast_mcp_search(city: str):
 
 # Destination Extractor
 def extract_destination(query: str):
-    prompt = """
+    prompt = f"""
 
     Extract only the destination city or country from the travel request.
 

@@ -48,7 +48,7 @@ class TravelState(TypedDict, total=False):
     user_query: str
 
     # Supervisor + guardrail state
-    guardrail_allowed : bool
+    guardrail_allowed: bool
     guardrail_reason: str
     selected_agents: list[str]
     trip_constraints: dict[str, Any]
@@ -59,7 +59,7 @@ class TravelState(TypedDict, total=False):
     hotel_results: str
     itinerary: str
     model_calls: int
-    weather_results : str
+    weather_results: str
 
     # New budget + HTML state
     budget_results : str
@@ -141,7 +141,7 @@ def supervisor_agent(state: TravelState):
     # break the original travel-planning behavior.
     try:
         guardrail_raw = _model_text(
-            "You are the input guradrail for a travel-planner application."
+            "You are the input guardrail for a travel-planner application."
             "Return strict JSON only.",
             guardrail_prompt,
         )
@@ -158,7 +158,7 @@ def supervisor_agent(state: TravelState):
     if not allowed:
         reason = guardrail_reason or (
             "TripMate AI can only help with travel-planner requests. "
-            "Please ask about a destination, flight, hotel, weatehr, budget, "
+            "Please ask about a destination, flight, hotel, weather, budget, "
             "or itinerary"
         )
 
@@ -196,7 +196,7 @@ def supervisor_agent(state: TravelState):
         "travel_style": "",
         "special_preferences": []
         }},
-        "reasoning: ""
+        "reasoning": ""
     }}
 
     User request:
@@ -215,7 +215,7 @@ def supervisor_agent(state: TravelState):
             if name in requested_agents and name in KNOWN_AGENTS
         ]
 
-        # The itinerary agent integrates whichever speciallist results were selected.
+        # The itinerary agent integrates whichever specialist results were selected.
         if "itinerary_agent" not in selected_agents:
             selected_agents.append("itinerary_agent")
 
@@ -227,13 +227,13 @@ def supervisor_agent(state: TravelState):
         reasoning = str(parsed.get("reasoning", "")).strip()
         model_calls += 1
 
-    except Exception as exe:
-        print(f"Supervisor fallback used: {exe}")
+    except Exception as exc:
+        print(f"Supervisor fallback used: {exc}")
         #Original workflow behavior is preserved as the fallback.
         selected_agents = AGENT_ORDER.copy()
         constraints = _empty_constraints()
         reasoning = (
-            "Supervisore parsing failled, so the original full travel workflow"
+            "Supervisor parsing failed, so the original full travel workflow"
             "was selected as a safe fallback"
         )
 
@@ -250,7 +250,7 @@ def supervisor_agent(state: TravelState):
 # Guardrail blocked response
 def guardrail_blocked_agent(state: TravelState):
     reason = state.get("final_response") or state.get("guardrail_reason") or (
-        "This request was blocked bt the travel input guardrail"
+        "This request was blocked by the travel input guardrail"
     )
     return {
         "final_response": reason,
@@ -266,8 +266,8 @@ def get_database_url():
         )
 
     if "sslmode=" not in database_url:
-        seperator = "&" if "?" in database_url else "?"
-        database_url = f"{database_url}{seperator}sslmode=require"
+        separator = "&" if "?" in database_url else "?"
+        database_url = f"{database_url}{separator}sslmode=require"
 
     return database_url
 
@@ -349,7 +349,7 @@ def flight_agent(state: TravelState):
         flight_data =response.content
 
     except Exception as e:
-        flight_data = f"Flight information uvavailable: {str(e)}"
+        flight_data = f"Flight information unavailable: {str(e)}"
 
     return {
         "flight_results": flight_data,
@@ -395,9 +395,9 @@ def hotel_agent(state: TravelState):
 
 # Weather agent
 def weather_agent(state: TravelState):
-    city = extract_destination(state["user_query"])
-
     try:
+        city = extract_destination(state["user_query"])
+
         weather_data = asyncio.run(
             weather_mcp_search(city)
         )
@@ -432,9 +432,10 @@ def weather_agent(state: TravelState):
         "weather_results": weather_results,
         "messages": [
             AIMessage(
-                content="Weather information processes"
+                content="Weather information processed."
             )
-        ]
+        ],
+        "model_calls": state.get("model_calls", 0) + 1
     }
 
 # Budget Agent
@@ -489,19 +490,19 @@ def itinerary_agent(state: TravelState):
         {state['user_query']}
 
         Trip Constraints:
-        {state.get('trip_constraints', {})}
+        {state.get("trip_constraints", {})}
 
         Flight Results:
-        {state.get('flight_results', '')}
+        {state.get("flight_results", "")}
 
         Hotel Results:
-        {state.get('hotel_results', '')}
+        {state.get("hotel_results", "")}
 
         Weather Results:
-        {state.get('weather_results', '')}
+        {state.get("weather_results", "")}
 
         Budget Results:
-        {state.get('budget_results', '')}
+        {state.get("budget_results", "")}
 
         Make the itinerary practical, budget-aware, and easy to follow.
     """
@@ -748,7 +749,7 @@ def _serialize_result(
 
 
 def run_travel_agent(user_input: str, thread_id: str | None = None):
-    """ Start a new travel-planning run and pause at huamn approval."""
+    """ Start a new travel-planning run and pause at human approval."""
     if not thread_id:
         thread_id = f"user_{uuid.uuid4().hex}"
 

@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Any
-from mcp.servers.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP
 import requests
 import os
 from dotenv import load_dotenv
@@ -100,7 +100,7 @@ def get_forecast(city: str) -> dict[str, Any]:
         )
     
     data = _request_json(
-        "https://api.openweathermap.org/data/2.5/forecast"
+        "https://api.openweathermap.org/data/2.5/forecast",
 
         {
         "q": city,
