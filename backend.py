@@ -48,7 +48,7 @@ class TravelState(TypedDict, total=False):
     user_query: str
 
     # Supervisor + guardrail state
-    guardrail_allowed = bool
+    guardrail_allowed : bool
     guardrail_reason: str
     selected_agents: list[str]
     trip_constraints: dict[str, Any]
@@ -59,7 +59,7 @@ class TravelState(TypedDict, total=False):
     hotel_results: str
     itinerary: str
     model_calls: int
-    weather_results = str
+    weather_results : str
 
     # New budget + HTML state
     budget_results : str
@@ -228,7 +228,7 @@ def supervisor_agent(state: TravelState):
         model_calls += 1
 
     except Exception as exe:
-        print(f"Supervisor fallback used: {exc}")
+        print(f"Supervisor fallback used: {exe}")
         #Original workflow behavior is preserved as the fallback.
         selected_agents = AGENT_ORDER.copy()
         constraints = _empty_constraints()
@@ -489,19 +489,19 @@ def itinerary_agent(state: TravelState):
         {state['user_query']}
 
         Trip Constraints:
-        {state['trip_constraints', {}]}
+        {state.get('trip_constraints', {})}
 
         Flight Results:
-        {state['flight_results', '']}
+        {state.get('flight_results', '')}
 
         Hotel Results:
-        {state['hotel_results', '']}
+        {state.get('hotel_results', '')}
 
         Weather Results:
-        {state['weather_results', '']}
+        {state.get('weather_results', '')}
 
         Budget Results:
-        {state['budget_results', '']}
+        {state.get('budget_results', '')}
 
         Make the itinerary practical, budget-aware, and easy to follow.
     """
@@ -633,7 +633,7 @@ def _selected_agents(state:TravelState) -> list[str]:
 
 def route_from_supervisor(state: TravelState) -> str:
     if not state.get("guardrail_allowed", True):
-        return "Guardrail_blocked"
+        return "guardrail_blocked"
 
     selected = _selected_agents(state)
     return selected[0] if selected else "itinerary_agent"
@@ -743,7 +743,7 @@ def _serialize_result(
         "guardrail_reason": result.get("guardrail_reason",""),
         "approved": result.get("approved"),
         "human_feedback": result.get("human_feedback", ""),
-        "11m_calls": result.get("11m_calls", 0),
+        "model_calls": result.get("model_calls", 0),
     }
 
 
