@@ -205,7 +205,7 @@ def supervisor_agent(state: TravelState):
 
     try:
         supervisor_raw = _model_text(
-            "You Route work to travel specialist agents. Return strict JSON only.",
+            "You route work to travel specialist agents. Return strict JSON only.",
             supervisor_prompt,
         )
         parsed = _json_from_model(supervisor_raw)
@@ -395,6 +395,8 @@ def hotel_agent(state: TravelState):
 
 # Weather agent
 def weather_agent(state: TravelState):
+    city = "the requested destination"
+
     try:
         city = extract_destination(state["user_query"])
 
@@ -417,7 +419,7 @@ def weather_agent(state: TravelState):
     except Exception as e:
         print(
             f"WEATHER AGENT MCP ERROR: "
-            f"{type(e) .__name__}: {e}",
+            f"{type(e).__name__}: {e}",
             flush=True,
         )
 

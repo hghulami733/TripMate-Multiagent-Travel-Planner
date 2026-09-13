@@ -113,7 +113,7 @@ async def approve_travel_plan(request_data: ApprovalRequest):
         )
 
     except Exception as e:
-        print("APRROVAL ERROR: ", e)
+        print("APPROVAL ERROR: ", e)
         traceback.print_exc()
 
         return JSONResponse(
